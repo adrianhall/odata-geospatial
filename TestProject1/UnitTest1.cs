@@ -64,6 +64,7 @@ public class UnitTest1 : IClassFixture<ServiceApplicationFactory>
         // This is a GeoJSON test for equality of the OData query results.
         HttpResponseMessage response = await _client.GetAsync($"{_baseUrl}?$filter=location eq geography'POINT(-97 38)'");
         string content = await response.Content.ReadAsStringAsync();
+        // Put a breakpoint here and inspect the content.  Content will contain the error message thrown by the OData validation.
         response.Should().HaveStatusCode(HttpStatusCode.OK);
         Page<Country> page = JsonSerializer.Deserialize<Page<Country>>(content, serializerOptions);
 
