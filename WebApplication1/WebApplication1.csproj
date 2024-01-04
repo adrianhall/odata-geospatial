@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.OData" Version="8.2.3" />
+    <PackageReference Include="NetTopologySuite" Version="2.5.0" />
+    <PackageReference Include="NetTopologySuite.IO.GeoJSON4STJ" Version="4.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="TestData\countries.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="TestData\countries.json" />
+  </ItemGroup>
+
+</Project>
