@@ -1,10 +1,12 @@
 using FluentAssertions;
+using Microsoft.VisualStudio.TestPlatform.Utilities;
 using NetTopologySuite.IO.Converters;
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using WebApplication1.Models;
+using Xunit.Abstractions;
 
 #nullable disable
 
@@ -38,10 +40,13 @@ public class UnitTest1 : IClassFixture<ServiceApplicationFactory>
         ReadCommentHandling = JsonCommentHandling.Skip
     };
 
-    public UnitTest1(ServiceApplicationFactory factory)
+    private readonly ITestOutputHelper _output;
+
+    public UnitTest1(ServiceApplicationFactory factory, ITestOutputHelper output)
     {
         _factory = factory;
         _client = factory.CreateClient();
+        _output = output;
     }
 
     [Fact]
@@ -64,6 +69,8 @@ public class UnitTest1 : IClassFixture<ServiceApplicationFactory>
         // This is a GeoJSON test for equality of the OData query results.
         HttpResponseMessage response = await _client.GetAsync($"{_baseUrl}?$filter=location eq geography'POINT(-97 38)'");
         string content = await response.Content.ReadAsStringAsync();
+        _output.WriteLine(content);
+
         // Put a breakpoint here and inspect the content.  Content will contain the error message thrown by the OData validation.
         response.Should().HaveStatusCode(HttpStatusCode.OK);
         Page<Country> page = JsonSerializer.Deserialize<Page<Country>>(content, serializerOptions);
