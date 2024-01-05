@@ -1,6 +1,9 @@
 ﻿using Microsoft.OData.Edm;
 using Microsoft.OData.ModelBuilder;
+using Microsoft.Spatial;
+using NetTopologySuite.Geometries;
 using System.Collections.Concurrent;
+using System.Xml.Linq;
 
 namespace WebApplication1.Models;
 
@@ -23,6 +26,13 @@ internal static class ModelCache
         var modelBuilder = new ODataConventionModelBuilder();
         modelBuilder.EnableLowerCamelCase();
         modelBuilder.AddEntityType(type);
+
+        if (type == typeof(Country))
+        {
+            var country = modelBuilder.StructuralTypes.First(t => t.ClrType == typeof(Country));
+            country.AddProperty(typeof(Country).GetProperty("EdmLocation")).Name = "Location"; // make sure the edm property name same as the NetTopology property name
+        }
+
         return modelBuilder.GetEdmModel();
     }
 }

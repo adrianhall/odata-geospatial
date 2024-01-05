@@ -1,5 +1,8 @@
-﻿using NetTopologySuite.Geometries;
+﻿using Microsoft.Spatial;
+using NetTopologySuite.Geometries;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Runtime.Serialization;
 using WebApplication1.TestData;
 
 namespace WebApplication1.Models;
@@ -24,7 +27,10 @@ public class Country
 
     public string Name { get; set; } = string.Empty;
 
+    [NotMapped]
     public Point Location { get; set; } = new Point(0, 0);
+
+    public GeographyPoint EdmLocation { get; set; }
 
     public double Latitude { get => Location.X; }
 

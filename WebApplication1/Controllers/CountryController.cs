@@ -1,10 +1,13 @@
 ﻿using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OData.Extensions;
 using Microsoft.AspNetCore.OData.Query;
+using Microsoft.AspNetCore.OData.Query.Expressions;
 using Microsoft.AspNetCore.OData.Query.Validator;
 using Microsoft.AspNetCore.OData.Query.Wrapper;
 using Microsoft.OData;
 using Microsoft.OData.Edm;
+using Microsoft.OData.UriParser;
 using WebApplication1.Filters;
 using WebApplication1.Models;
 
@@ -28,6 +31,8 @@ public class CountryController : ControllerBase
     [HttpGet]
     public IActionResult Query()
     {
+        BuildServiceProvider(Request);
+
         IQueryable<Country> dataset = Queryable; // Retrieved from a repository normally.
 
         ODataValidationSettings validationSettings = new() { MaxTop = 100 };    // Customer can set MaxTop on a per-table basis.
@@ -90,5 +95,31 @@ public class CountryController : ControllerBase
             query.Add($"$top={top}");
         }
         return string.Join('&', query).TrimStart('&');
+    }
+
+    private static IServiceProvider BuildServiceProvider(HttpRequest request)
+    {
+        // you can use 'request.HttpContext.RequestServices'
+        // IServiceProvider provider = request.HttpContext.RequestServices;
+        // or we can build a new one
+        IServiceCollection services = new ServiceCollection();
+        services.AddSingleton(sp => new DefaultQueryConfigurations { EnableFilter = true });
+        services.AddSingleton<IFilterBinder, MyFilterBinder>();
+        services.AddScoped<ODataQuerySettings>();
+
+        services.AddSingleton<ODataUriResolver>(sp =>
+               new UnqualifiedODataUriResolver
+               {
+                   EnableCaseInsensitive = true, // by default to enable case insensitive
+               });
+
+        // for ODL
+        services.AddScoped<ODataSimplifiedOptions>();
+        services.AddScoped<ODataUriParserSettings>();
+
+        IServiceProvider provider = services.BuildServiceProvider();
+
+        request.ODataFeature().Services = provider;
+        return provider;
     }
 }
